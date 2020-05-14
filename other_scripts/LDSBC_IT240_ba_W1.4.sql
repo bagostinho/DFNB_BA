@@ -9,21 +9,29 @@
 -- Order Quantity
 -- Sales Order Line total
 
-SELECT TOP 5 year(soh.OrderDate) AS OrderDateYear
+--ANSWERS
+
+--2014	870	Water Bottle - 30 oz.	WB-H098	NULL	2273	2902	12900.317660
+--2014	712	AWC Logo Cap	CA-1098	Multi	1267	1950	14430.970952
+--2014	711	Sport-100 Helmet, Blue	HL-U509-B	Blue	1221	1776	52353.591556
+--2014	873	Patch Kit/8 Patches	PK-7098	NULL	1608	1761	3850.406000
+--2014	707	Sport-100 Helmet, Red	HL-U509-R	Red	1231	1717	51697.665517
+
+SELECT TOP 5 year (soh.OrderDate) AS OrderDateYear
 	, p.ProductID
-	, p.name AS ProductName
-	, p.[ProductNumber]
+	, p.Name as ProductName
+	, p.ProductNumber
 	, p.Color AS ProductColor
-	, count(sod.SalesOrderID) AS SalesOrderIDCount
-	, sum(sod.OrderQty) AS OrderQtySum
-	, sum (sod.LineTotal) AS SalesOrderLineTotalSum
-FROM Production.Product AS
-	inner JOIN
-	Sales.SalesOrderDetail AS sod ON p.ProductID = sod.ProductID
-	INNER JOIN 
-	Sales.SalesOrderHeader as soh ON sod.SalesOrderID = soh.ProductID
-WHERE year(soh.OrderDate) = 2014
-GROUP BY year(soh.OrderDate)
+	, Count (sod.SalesOrderID) AS SalesOrderIDCount
+	, Sum (sod.OrderQty) as OrderQtySum
+	, Sum (sod.LineTotal) AS SalesOrderLineTotalSum
+FROM Production.Product as p
+	INNER JOIN
+	Sales.SalesOrderDetail as sod ON p.ProductID = sod.ProductID
+	INNER JOIN
+	Sales.SalesOrderHeader as soh ON sod.SalesOrderID = soh.SalesOrderID
+WHERE year (soh.OrderDate) = 2014
+GROUP BY year (soh.OrderDate)
 	, p.ProductID
 	, p.Name
 	, p.ProductNumber
@@ -43,6 +51,7 @@ ORDER BY 7 DESC;
 --Last Name Length
 
 --ANSWERS
+
 --4388	Osarumwense Uwaifiokun Agbonile	31	Osarumwense	11	Uwaifiokun	Agbonile	8
 --565	Janaina Barreiro Gambaro  Bueno	31	Janaina Barreiro Gambaro	24	NULL	Bueno	5
 --775	Alvaro  De Matos Miranda Filho	30	Alvaro	6	NULL	De Matos Miranda Filho	22
@@ -74,56 +83,69 @@ ORDER BY 3 DESC
 --Business Entity ID Count
 --Average Yearly Pay
 
-WITH s1 AS (SELECT d.DepartmentID
-	, d.name as DepartmentName
-	, e.Gender
-	, eph.Rate
-	, eph.PayFreuency
-	, e.SalariedFlag
-	, CASE
-		WHEN e.SalariedFlag = 1 
-		THEN rate * 1000grou
-		WHEN e.SalariedFlag = 0 
-		THEN rate * 2080
-		else 0 
-	end as YearlyPay
-	, count(e.BusinessEntityID) as BusinessEntityIDCount
-	, CASE
-		WHEN e.SalariedFlag = 1 
-		THEN rate * 1000
-		WHEN e.SalariedFlag = 0 
-		THEN rate * 2080
-		ELSE 0 
-	end * count(e.BusinessEntityID) as TotalYearlyPay
-FROM HumanResources AS e 
-	INNER JOIN
-	HumanResources.EmployeePayHistory AS eph ON edh.BusinessEntityID * eph.BusinessEntityID
-	Inner Join 
-	HumanResources.EmployeePayHistory as eph ON edh.BusinessEntityID * eph.BusinessEntityID
-	inner join 
-	HumanResources.Department AS d ON edh.DepartmentID = d.DepartmentID
-WHERE e.Gender = 'F'
-Group BY d.DepartmentID
-	, d.Name
-	, e.Gender
-	, eph.Rate
-	, eph, PayFrequency
-	, e.SalariedFlag
-	, CASE 
-		WHEN e.SalariedFlag = 1 
-		THEN rate * 1000
-		WHEN e.SalariedFlag = 0 
-		THEN rate * 2080
-		ELSE 0 
-	END)
-SELECT TOP 10 s1.DepartmentID
-	, s1.DepartmentName
-	, s1.Gender
-	, SUM(s1.TotalYearlyPay) AS TotalYearlyPay
-	, sum(s1.BusinessEntityIDCount) AS BusinessEntityIDCount
-	, sum(s1.TotalYearlyPay) / sum(s1.BusinessEntityIDCount) AS AverageYearlyPay
-FROM s1 
-GROUP BY s1.DepartmentID
-	, s1.DepartmentName
-	, s1.Gender
-ORDER BY 6 DESC; 
+--ANSWERS
+--2	Tool Design	F	52000.00	1	52000.00
+--16	Executive	F	147713.90	3	49237.9666
+--1	Engineering	F	128846.10	3	42948.70
+--10	Finance	F	335985.40	8	41998.175
+--6	Research and Development	F	81730.80	2	40865.40
+--11	Information Services	F	144951.90	4	36237.975
+--9	Human Resources	F	61639.32	2	30819.66
+--7	Production	F	1322464.00	46	28749.2173
+--5	Purchasing	F	164879.872	6	27479.9786
+--3	Sales	F	186562.40	7	26651.7714
+
+WITH s1
+	AS (SELECT d.DepartmentID
+		, d.Name AS DepartmentName
+		, e.Gender
+		, eph.Rate
+		, eph.PayFrequency
+		, e.SalariedFlag
+		, CASE
+			WHEN e.SalariedFlag = 1 
+			THEN rate * 1000
+			WHEN e.SalariedFlag = 0
+			THEN rate * 2080
+			ELSE 0 
+		END AS YearlyPay
+		, count (e.BusinessEntityID) AS BusinessEntityIDCount
+		, CASE  
+			WHEN e.SalariedFlag = 1 
+			THEN rate * 1000
+			WHEN e.SalariedFlag = 0
+			THEN rate * 2080
+			ELSE 0
+		END * count (e.BusinessEntityID) AS TotalYearlyPay
+	FROM HumanResources.Employee as e
+		INNER JOIN
+		HumanResources.EmployeeDepartmentHistory as edh ON e.BusinessEntityID = edh.BusinessEntityID
+		INNER JOIN
+		HumanResources.EmployeePayHistory as eph ON edh.BusinessEntityID = eph.BusinessEntityID
+		INNER JOIN
+		HumanResources.Department as d ON edh.DepartmentID = d.DepartmentID
+	WHERE e.Gender = 'F'
+	GROUP BY d.DepartmentID
+			, d.Name
+			, e.Gender
+			, eph.Rate
+			, eph.PayFrequency
+			, e.SalariedFlag
+			, CASE
+				WHEN e.SalariedFlag = 1 
+				THEN rate * 1000
+				WHEN e.SalariedFlag = 0
+				THEN rate * 2080
+				ELSE 0
+			END)
+	SELECT TOP 10 s1.DepartmentID
+				, s1.DepartmentName
+				, s1.Gender
+				, sum(s1.TotalYearlyPay) AS TotalYearlyPay
+				, sum(s1.BusinessEntityIDCount) AS BusinessEntityIDCount
+				, sum(s1.TotalYearlyPay) / sum(s1.BusinessEntityIDCount) AS AverageYearlyPay
+		FROM s1 
+		GROUP BY s1.DepartmentID
+				, s1.DepartmentName
+				, s1.Gender
+		ORDER BY 6 DESC;
