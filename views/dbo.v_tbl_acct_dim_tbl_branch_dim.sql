@@ -1,3 +1,25 @@
+/*****************************************************************************************************************
+NAME:    LoadDFNB_p1.sql
+PURPOSE: Load DFNB Project 1
+
+
+MODIFICATION LOG:
+Ver       Date         Author       Description
+-------   ----------   ----------   -----------------------------------------------------------------------------
+1.0       7/11/2020   BAGOSTINHO      1. Built this script  for LDS BC IT 240
+
+
+NOTES: 
+This script is for Project 1
+
+LICENSE: 
+This code is covered by the GNU General Public License which guarantees end users
+the freedom to run, study, share, and modify the code. This license grants the recipients
+of the code the rights of the Free Software Definition. All derivative work can only be
+distributed under the same license terms.
+
+******************************************************************************************************************/
+
 USE [DFNB2]
 GO
 
