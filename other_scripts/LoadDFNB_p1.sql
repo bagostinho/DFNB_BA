@@ -72,22 +72,6 @@ IF (OBJECT_ID('FK_t_cust_dim_t_branch_dim') IS NOT NULL)
 ALTER TABLE t_cust_dim
 DROP CONSTRAINT FK_t_cust_dim_t_branch_dim;
 
-
-
-
-IF (OBJECT_ID('FK_t_tran_fact_t_branch_dim') IS NOT NULL)
-ALTER TABLE t_tran_fact
-DROP CONSTRAINT FK_t_tran_fact_t_branch_dim;
-
-IF (OBJECT_ID('FK_t_tran_fact_t_acct_dim') IS NOT NULL)
-ALTER TABLE t_tran_fact
-DROP CONSTRAINT FK_t_tran_fact_t_acct_dim;
-
-IF (OBJECT_ID('FK_t_tran_fact_t_tran_type_dim') IS NOT NULL)
-ALTER TABLE t_tran_fact
-DROP CONSTRAINT FK_t_tran_fact_t_tran_type_dim;
-
-
 GO
 
 
@@ -329,49 +313,6 @@ INSERT INTO t_region_dim(region_id)
        FROM [dbo].[stg_p1]
     ORDER BY 1;
 
--- /////////////////////////////////  --
-
-truncate table t_tran_fact
-INSERT INTO t_tran_fact
-(tran_date, 
- tran_time, 
- branch_id, 
- acct_id, 
- tran_type_id, 
- tran_amt, 
- tran_fee_amt
-)
-       SELECT DISTINCT
-              [tran_date], 
-              [tran_time], 
-              [branch_id], 
-              [acct_id], 
-              [tran_type_id], 
-              [tran_amt], 
-              [tran_fee_amt]
-       FROM [dbo].[stg_p2]
-       ORDER BY 1, 
-                2, 
-                4;
-                 
--- /////////////////////////////////  --
-
-truncate table t_tran_type_dim;
-INSERT INTO t_tran_type_dim
-(tran_type_id, 
- tran_type_code, 
- tran_type_desc, 
- tran_fee_prct, 
- cur_cust_req_ind
-)
-       SELECT DISTINCT 
-              [tran_type_id], 
-              [tran_type_code], 
-              [tran_type_desc], 
-              [tran_fee_prct], 
-              [cur_cust_req_ind]
-       FROM [dbo].[stg_p2]
-       ORDER BY 1;
 
 GO
 
@@ -553,8 +494,6 @@ ALTER TABLE t_acct_cust_dim
 ADD CONSTRAINT FK_t_acct_cust_dim_t_acct_dim
 FOREIGN KEY( acct_id ) REFERENCES t_acct_dim( acct_id );
 
---????????????--****
-
 ALTER TABLE t_acct_cust_dim
 ADD CONSTRAINT FK_t_acct_cust_dim_t_acct_cust_role_dim
 FOREIGN KEY( cust_role_id ) REFERENCES t_acct_cust_role_dim( cust_role_id );
@@ -566,21 +505,3 @@ FOREIGN KEY( address_id ) REFERENCES t_address_dim( address_id );
 ALTER TABLE t_cust_dim
 ADD CONSTRAINT FK_t_cust_dim_t_branch_dim
 FOREIGN KEY( primary_branch_id ) REFERENCES t_branch_dim( branch_id );
-
---????????????--*****
-
-ALTER TABLE t_tran_fact
-ADD CONSTRAINT FK_t_tran_fact_t_branch_dim
-FOREIGN KEY( branch_id ) REFERENCES t_branch_dim( branch_id );
-
-ALTER TABLE t_tran_fact
-ADD CONSTRAINT FK_t_tran_fact_t_acct_dim
-FOREIGN KEY( acct_id ) REFERENCES t_acct_dim( acct_id );
-
---????????????--
-
-ALTER TABLE t_tran_fact
-ADD CONSTRAINT FK_t_tran_fact_t_tran_type_dim
-FOREIGN KEY( tran_type_id ) REFERENCES t_tran_type_dim( tran_type_id );
-
---????????????--
